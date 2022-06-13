@@ -19,8 +19,9 @@
 package com.graphhopper.routing.weighting.custom;
 
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FlagEncoders;
 import com.graphhopper.storage.BaseGraph;
 import com.graphhopper.util.CustomModel;
 import com.graphhopper.util.EdgeIteratorState;
@@ -41,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CustomModelParserTest {
 
-    CarFlagEncoder encoder;
+    FlagEncoder encoder;
     BaseGraph graph;
     EncodingManager encodingManager;
     EnumEncodedValue<RoadClass> roadClassEnc;
@@ -50,7 +51,7 @@ class CustomModelParserTest {
 
     @BeforeEach
     void setup() {
-        encoder = new CarFlagEncoder();
+        encoder = FlagEncoders.createCar();
         countryEnc = new StringEncodedValue("country", 10);
         encodingManager = new EncodingManager.Builder().add(encoder).add(countryEnc).add(new EnumEncodedValue<>(Surface.KEY, Surface.class)).build();
         graph = new BaseGraph.Builder(encodingManager).create();
@@ -113,7 +114,7 @@ class CustomModelParserTest {
                 set(roadClassEnc, SECONDARY).set(avgSpeedEnc, 40);
 
         CustomModel customModel = new CustomModel();
-        customModel.addToPriority(If("(road_class == PRIMARY || car$access == true) && car$average_speed > 50", MULTIPLY, 0.9));
+        customModel.addToPriority(If("(road_class == PRIMARY || car_access == true) && car_average_speed > 50", MULTIPLY, 0.9));
         CustomWeighting.Parameters parameters = CustomModelParser.createWeightingParameters(customModel, encodingManager,
                 avgSpeedEnc, encoder.getMaxSpeed(), null);
         assertEquals(0.9, parameters.getEdgeToPriorityMapping().get(primary, false), 0.01);

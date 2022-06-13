@@ -4,8 +4,9 @@ import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.graphhopper.json.Statement;
 import com.graphhopper.routing.ev.*;
-import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FlagEncoders;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.BaseGraph;
@@ -27,11 +28,11 @@ class CustomWeightingTest {
     DecimalEncodedValue maxSpeedEnc;
     EnumEncodedValue<RoadClass> roadClassEnc;
     EncodingManager encodingManager;
-    CarFlagEncoder carFE;
+    FlagEncoder carFE;
 
     @BeforeEach
     public void setup() {
-        carFE = new CarFlagEncoder(new PMap().putObject("speed_two_directions", true));
+        carFE = FlagEncoders.createCar(new PMap().putObject("speed_two_directions", true));
         encodingManager = new EncodingManager.Builder().add(carFE)
                 .add(new EnumEncodedValue<>(Toll.KEY, Toll.class))
                 .add(new EnumEncodedValue<>(Hazmat.KEY, Hazmat.class))
@@ -117,7 +118,7 @@ class CustomWeightingTest {
 
     @Test
     public void testBoolean() {
-        carFE = new CarFlagEncoder();
+        carFE = FlagEncoders.createCar();
         BooleanEncodedValue specialEnc = new SimpleBooleanEncodedValue("special", true);
         encodingManager = new EncodingManager.Builder().add(carFE).add(specialEnc).build();
         avSpeedEnc = carFE.getAverageSpeedEnc();
@@ -201,7 +202,7 @@ class CustomWeightingTest {
         EdgeIteratorState edge50 = graph.edge(1, 2).setDistance(10).set(avSpeedEnc, 50).set(accessEnc, true, true);
 
         CustomModel vehicleModel = new CustomModel();
-        vehicleModel.addToPriority(If("car$average_speed > 40", MULTIPLY, 0.5));
+        vehicleModel.addToPriority(If("car_average_speed > 40", MULTIPLY, 0.5));
 
         assertEquals(1.60, createWeighting(vehicleModel).calcEdgeWeight(edge40, false), 0.01);
         assertEquals(2.14, createWeighting(vehicleModel).calcEdgeWeight(edge50, false), 0.01);

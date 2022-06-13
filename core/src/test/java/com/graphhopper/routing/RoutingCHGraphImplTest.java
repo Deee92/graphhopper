@@ -20,9 +20,9 @@ package com.graphhopper.routing;
 
 import com.graphhopper.routing.ch.PrepareEncoder;
 import com.graphhopper.routing.util.AccessFilter;
-import com.graphhopper.routing.util.Bike2WeightFlagEncoder;
-import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FlagEncoders;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.*;
 import com.graphhopper.util.EdgeExplorer;
@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RoutingCHGraphImplTest {
     @Test
     public void testBaseAndCHEdges() {
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(carEncoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
         graph.edge(1, 0);
@@ -74,7 +74,7 @@ public class RoutingCHGraphImplTest {
         //   4 ------ 1 > 0
         //            ^ \
         //            3  2
-        CarFlagEncoder encoder = new CarFlagEncoder();
+        FlagEncoder encoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(encoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
         EdgeExplorer baseCarOutExplorer = graph.createEdgeExplorer(AccessFilter.outEdges(encoder.getAccessEnc()));
@@ -111,7 +111,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testGetWeight() {
-        CarFlagEncoder encoder = new CarFlagEncoder();
+        FlagEncoder encoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(encoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
         EdgeIteratorState edge1 = graph.edge(0, 1);
@@ -138,7 +138,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testGetWeightIfAdvancedEncoder() {
-        Bike2WeightFlagEncoder customEncoder = new Bike2WeightFlagEncoder();
+        FlagEncoder customEncoder = FlagEncoders.createBike2();
         EncodingManager em = EncodingManager.create(customEncoder);
         BaseGraph ghStorage = new BaseGraph.Builder(em).create();
         ghStorage.edge(0, 3);
@@ -165,7 +165,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testWeightExact() {
-        CarFlagEncoder encoder = new CarFlagEncoder();
+        FlagEncoder encoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(encoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
         GHUtility.setSpeed(60, true, false, encoder, graph.edge(0, 1).setDistance(1));
@@ -189,7 +189,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testSimpleShortcutCreationAndTraversal() {
-        CarFlagEncoder encoder = new CarFlagEncoder();
+        FlagEncoder encoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(encoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
 
@@ -213,7 +213,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testAddShortcutSkippedEdgesWriteRead() {
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(carEncoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
         final EdgeIteratorState edge1 = GHUtility.setSpeed(60, true, true, carEncoder, graph.edge(1, 3).setDistance(10));
@@ -234,7 +234,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testSkippedEdges() {
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(carEncoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
         final EdgeIteratorState edge1 = GHUtility.setSpeed(60, true, true, carEncoder, graph.edge(1, 3).setDistance(10));
@@ -253,7 +253,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testAddShortcut_edgeBased_throwsIfNotConfiguredForEdgeBased() {
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(carEncoder);
         BaseGraph graph = new BaseGraph.Builder(em).create();
 
@@ -265,13 +265,13 @@ public class RoutingCHGraphImplTest {
         CHConfig chConfig = CHConfig.nodeBased("p1", weighting);
         CHStorage chStore = CHStorage.fromGraph(graph, chConfig);
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
-        assertThrows(IllegalArgumentException.class, () -> chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 10, 0, 1, 0, 1));
+        assertThrows(IllegalArgumentException.class, () -> chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 10, 0, 1, 0, 2));
     }
 
     @Test
     public void testAddShortcut_edgeBased() {
         // 0 -> 1 -> 2
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(carEncoder);
         BaseGraph graph = new BaseGraph.Builder(em).set3D(true).create();
         GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(0, 1).setDistance(1));
@@ -284,14 +284,14 @@ public class RoutingCHGraphImplTest {
 
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 10, 0, 1, 0, 1);
-        assertEquals(0, chStore.getOrigEdgeFirst(chStore.toShortcutPointer(0)));
-        assertEquals(1, chStore.getOrigEdgeLast(chStore.toShortcutPointer(0)));
+        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 10, 0, 1, 0, 2);
+        assertEquals(0, chStore.getOrigEdgeKeyFirst(chStore.toShortcutPointer(0)));
+        assertEquals(2, chStore.getOrigEdgeKeyLast(chStore.toShortcutPointer(0)));
     }
 
     @Test
     public void outOfBounds() {
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(carEncoder);
         BaseGraph graph = new BaseGraph.Builder(em).set3D(true).create();
         graph.freeze();
@@ -304,7 +304,7 @@ public class RoutingCHGraphImplTest {
 
     @Test
     public void testGetEdgeIterator() {
-        CarFlagEncoder carEncoder = new CarFlagEncoder();
+        FlagEncoder carEncoder = FlagEncoders.createCar();
         EncodingManager em = EncodingManager.create(carEncoder);
         BaseGraph graph = new BaseGraph.Builder(em).set3D(true).create();
         GHUtility.setSpeed(60, true, false, carEncoder, graph.edge(0, 1).setDistance(1));
@@ -316,7 +316,7 @@ public class RoutingCHGraphImplTest {
         CHStorage store = CHStorage.fromGraph(graph, chConfig);
         CHStorageBuilder chBuilder = new CHStorageBuilder(store);
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 10, 0, 1, 0, 1);
+        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 10, 0, 1, 0, 2);
 
         RoutingCHGraph lg = RoutingCHGraphImpl.fromGraph(graph, store, chConfig);
 
@@ -327,8 +327,8 @@ public class RoutingCHGraphImplTest {
         assertEquals(2, sc02.getEdge());
         assertEquals(0, sc02.getSkippedEdge1());
         assertEquals(1, sc02.getSkippedEdge2());
-        assertEquals(0, sc02.getOrigEdgeFirst());
-        assertEquals(1, sc02.getOrigEdgeLast());
+        assertEquals(0, sc02.getOrigEdgeKeyFirst());
+        assertEquals(2, sc02.getOrigEdgeKeyLast());
 
         RoutingCHEdgeIteratorState sc20 = lg.getEdgeIteratorState(2, 0);
         assertNotNull(sc20);
@@ -339,7 +339,7 @@ public class RoutingCHGraphImplTest {
         // is still edge 0 and the second skipped/last orig edge is edge 1
         assertEquals(0, sc20.getSkippedEdge1());
         assertEquals(1, sc20.getSkippedEdge2());
-        assertEquals(0, sc20.getOrigEdgeFirst());
-        assertEquals(1, sc20.getOrigEdgeLast());
+        assertEquals(0, sc20.getOrigEdgeKeyFirst());
+        assertEquals(2, sc20.getOrigEdgeKeyLast());
     }
 }

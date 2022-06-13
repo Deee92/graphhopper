@@ -23,10 +23,7 @@ import com.graphhopper.routing.HeadingResolver;
 import com.graphhopper.routing.ev.BooleanEncodedValue;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.TurnCost;
-import com.graphhopper.routing.util.AccessFilter;
-import com.graphhopper.routing.util.CarFlagEncoder;
-import com.graphhopper.routing.util.EdgeFilter;
-import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.*;
 import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
@@ -54,12 +51,12 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class QueryGraphTest {
     private EncodingManager encodingManager;
-    private CarFlagEncoder encoder;
+    private FlagEncoder encoder;
     private BaseGraph g;
 
     @BeforeEach
     public void setUp() {
-        encoder = new CarFlagEncoder();
+        encoder = FlagEncoders.createCar();
         encodingManager = EncodingManager.create(encoder);
         g = new BaseGraph.Builder(encodingManager).create();
     }
@@ -498,7 +495,7 @@ public class QueryGraphTest {
 
     @Test
     public void testTurnCostsProperlyPropagated_Issue282() {
-        CarFlagEncoder encoder = new CarFlagEncoder(5, 5, 15);
+        FlagEncoder encoder = FlagEncoders.createCar(new PMap("max_turn_costs=15"));
         EncodingManager em = EncodingManager.create(encoder);
         BaseGraph graphWithTurnCosts = new BaseGraph.Builder(em).withTurnCosts(true).create();
         TurnCostStorage turnExt = graphWithTurnCosts.getTurnCostStorage();
@@ -689,7 +686,6 @@ public class QueryGraphTest {
         EdgeExplorer explorer = g.createEdgeExplorer();
         EdgeIterator iter = explorer.setBaseNode(1);
         assertTrue(iter.next());
-        int origEdgeId = iter.getEdge();
         Snap res = createLocationResult(2, 1.5, iter, 1, PILLAR);
         QueryGraph queryGraph = lookup(res);
 
@@ -699,14 +695,14 @@ public class QueryGraphTest {
         EdgeExplorer qGraphExplorer = queryGraph.createEdgeExplorer();
         iter = qGraphExplorer.setBaseNode(3);
         assertTrue(iter.next());
+        assertEquals(2, iter.getEdge());
         assertEquals(0, iter.getAdjNode());
-        assertEquals(GHUtility.createEdgeKey(1, 0, origEdgeId, false),
-                ((VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(iter.getEdge(), 0)).getOriginalEdgeKey());
+        assertEquals(3, ((VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(iter.getEdge(), 0)).getOriginalEdgeKey());
 
         assertTrue(iter.next());
+        assertEquals(3, iter.getEdge());
         assertEquals(1, iter.getAdjNode());
-        assertEquals(GHUtility.createEdgeKey(0, 1, origEdgeId, false),
-                ((VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(iter.getEdge(), 1)).getOriginalEdgeKey());
+        assertEquals(2, ((VirtualEdgeIteratorState) queryGraph.getEdgeIteratorState(iter.getEdge(), 1)).getOriginalEdgeKey());
     }
 
     @Test
@@ -827,7 +823,7 @@ public class QueryGraphTest {
         // virtual nodes:     2
         //                0 - x - 1
         // virtual edges:   1   2
-        CarFlagEncoder encoder = new CarFlagEncoder(new PMap().putObject("speed_two_directions", true));
+        FlagEncoder encoder = FlagEncoders.createCar(new PMap().putObject("speed_two_directions", true));
         EncodingManager encodingManager = EncodingManager.create(encoder);
         DecimalEncodedValue speedEnc = encoder.getAverageSpeedEnc();
         BaseGraph g = new BaseGraph.Builder(encodingManager).create();
@@ -901,7 +897,7 @@ public class QueryGraphTest {
         // virtual nodes:     2
         //                0 - x - 1
         // virtual edges:   1   2
-        CarFlagEncoder encoder = new CarFlagEncoder(new PMap().putObject("speed_two_directions", true));
+        FlagEncoder encoder = FlagEncoders.createCar(new PMap().putObject("speed_two_directions", true));
         EncodingManager encodingManager = EncodingManager.create(encoder);
         DecimalEncodedValue speedEnc = encoder.getAverageSpeedEnc();
         BaseGraph g = new BaseGraph.Builder(encodingManager).create();

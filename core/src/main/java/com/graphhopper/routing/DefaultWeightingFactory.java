@@ -75,20 +75,17 @@ public class DefaultWeightingFactory implements WeightingFactory {
                 throw new IllegalArgumentException("custom weighting requires a CustomProfile but was profile=" + profile.getName());
             CustomModel queryCustomModel = requestHints.getObject(CustomModel.KEY, null);
             CustomProfile customProfile = (CustomProfile) profile;
-            if (queryCustomModel != null)
-                queryCustomModel.checkLMConstraints(customProfile.getCustomModel());
-
             queryCustomModel = CustomModel.merge(customProfile.getCustomModel(), queryCustomModel);
             weighting = CustomModelParser.createWeighting(encoder, encodingManager, turnCostProvider, queryCustomModel);
         } else if ("shortest".equalsIgnoreCase(weightingStr)) {
             weighting = new ShortestWeighting(encoder, turnCostProvider);
         } else if ("fastest".equalsIgnoreCase(weightingStr)) {
-            if (encoder.supports(PriorityWeighting.class))
+            if (encoder.getPriorityEnc() != null)
                 weighting = new PriorityWeighting(encoder, hints, turnCostProvider);
             else
                 weighting = new FastestWeighting(encoder, hints, turnCostProvider);
         } else if ("curvature".equalsIgnoreCase(weightingStr)) {
-            if (encoder.supports(CurvatureWeighting.class))
+            if (encoder.getCurvatureEnc() != null)
                 weighting = new CurvatureWeighting(encoder, hints, turnCostProvider);
 
         } else if ("short_fastest".equalsIgnoreCase(weightingStr)) {

@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AccessFilterTest {
-    private final CarFlagEncoder encoder = new CarFlagEncoder();
+    private final FlagEncoder encoder = FlagEncoders.createCar();
     private final EncodingManager encodingManager = EncodingManager.create(encoder);
     private final BaseGraph graph = new BaseGraph.Builder(encodingManager)
             .withTurnCosts(true)
@@ -49,7 +49,7 @@ public class AccessFilterTest {
         CHStorage chStore = CHStorage.fromGraph(graph, chConfig);
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 0, PrepareEncoder.getScFwdDir(), 5, 0, 2, 0, 2);
+        chBuilder.addShortcutEdgeBased(0, 0, PrepareEncoder.getScFwdDir(), 5, 0, 2, 0, 5);
         RoutingCHGraph chGraph = RoutingCHGraphImpl.fromGraph(graph, chStore, chConfig);
         RoutingCHEdgeExplorer outExplorer = chGraph.createOutEdgeExplorer();
         RoutingCHEdgeExplorer inExplorer = chGraph.createInEdgeExplorer();

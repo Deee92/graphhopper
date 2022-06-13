@@ -21,8 +21,9 @@ package com.graphhopper.routing.lm;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.Subnetwork;
-import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FlagEncoders;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.routing.weighting.Weighting;
 import com.graphhopper.storage.BaseGraph;
@@ -30,6 +31,7 @@ import com.graphhopper.storage.Directory;
 import com.graphhopper.storage.NodeAccess;
 import com.graphhopper.storage.RAMDirectory;
 import com.graphhopper.util.GHUtility;
+import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -42,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class LMIssueTest {
     private Directory dir;
     private BaseGraph graph;
-    private CarFlagEncoder encoder;
+    private FlagEncoder encoder;
     private Weighting weighting;
     private LandmarkStorage lm;
     private EncodingManager encodingManager;
@@ -59,7 +61,7 @@ public class LMIssueTest {
     @BeforeEach
     public void init() {
         dir = new RAMDirectory();
-        encoder = new CarFlagEncoder(5, 5, 1);
+        encoder = FlagEncoders.createCar(new PMap("turn_costs=true"));
         encodingManager = new EncodingManager.Builder().add(encoder).add(Subnetwork.create("car")).build();
         graph = new BaseGraph.Builder(encodingManager)
                 .setDir(dir)

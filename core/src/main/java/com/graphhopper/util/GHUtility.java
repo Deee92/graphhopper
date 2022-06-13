@@ -438,11 +438,13 @@ public class GHUtility {
     public static GraphHopperStorage newStorage(GraphHopperStorage store) {
         Directory outdir = guessDirectory(store);
         boolean is3D = store.getNodeAccess().is3D();
-        return new GraphBuilder(store.getEncodingManager())
+        GraphHopperStorage copy = new GraphBuilder(store.getEncodingManager())
                 .withTurnCosts(store.getTurnCostStorage() != null)
                 .set3D(is3D)
                 .setDir(outdir)
                 .create();
+        copy.getProperties().putAll(store.getProperties().getAll());
+        return copy;
     }
 
     public static int getAdjNode(Graph g, int edge, int adjNode) {
@@ -529,15 +531,6 @@ public class GHUtility {
                 return Helper.createPointList(0, 2, 6, 4);
             }
 
-            @Override
-            public int getOrigEdgeFirst() {
-                return origFirst;
-            }
-
-            @Override
-            public int getOrigEdgeLast() {
-                return origLast;
-            }
         };
     }
 
@@ -573,35 +566,16 @@ public class GHUtility {
     }
 
     /**
-     * Creates unique positive number for specified edgeId taking into account the direction defined
-     * by nodeA, nodeB and reverse.
-     */
-    public static int createEdgeKey(int nodeA, int nodeB, int edgeId, boolean reverse) {
-        edgeId = edgeId << 1;
-        if (reverse)
-            return (nodeA >= nodeB) ? edgeId : edgeId + 1;
-        return (nodeA > nodeB) ? edgeId + 1 : edgeId;
-    }
-
-    /**
      * Creates an edge key, i.e. an integer number that encodes an edge ID and the direction of an edge
      */
-    public static int createEdgeKey(int edgeId, boolean reverse) {
+    public static int createEdgeKey(int edgeId, boolean isLoop, boolean reverse) {
         // edge state in storage direction -> edge key is even
         // edge state against storage direction -> edge key is odd
-        return (edgeId << 1) + (reverse ? 1 : 0);
+        return (edgeId << 1) + ((reverse && !isLoop) ? 1 : 0);
     }
 
     /**
-     * Returns if the specified edgeKeys (created by createEdgeKey) are identical regardless of the
-     * direction.
-     */
-    public static boolean isSameEdgeKeys(int edgeKey1, int edgeKey2) {
-        return edgeKey1 / 2 == edgeKey2 / 2;
-    }
-
-    /**
-     * Returns the edgeKey of the opposite direction
+     * Returns the edgeKey of the opposite direction, be careful not to use this for loops!
      */
     public static int reverseEdgeKey(int edgeKey) {
         return edgeKey % 2 == 0 ? edgeKey + 1 : edgeKey - 1;
@@ -723,10 +697,9 @@ public class GHUtility {
         if (!EdgeIterator.Edge.isValid(prevOrNextEdgeId)) {
             return edgeWeight;
         }
-        final int origEdgeId = reverse ? edgeState.getOrigEdgeLast() : edgeState.getOrigEdgeFirst();
         double turnWeight = reverse
-                ? weighting.calcTurnWeight(origEdgeId, edgeState.getBaseNode(), prevOrNextEdgeId)
-                : weighting.calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), origEdgeId);
+                ? weighting.calcTurnWeight(edgeState.getEdge(), edgeState.getBaseNode(), prevOrNextEdgeId)
+                : weighting.calcTurnWeight(prevOrNextEdgeId, edgeState.getBaseNode(), edgeState.getEdge());
         return edgeWeight + turnWeight;
     }
 
@@ -810,6 +783,11 @@ public class GHUtility {
 
         @Override
         public int getEdgeKey() {
+            throw new UnsupportedOperationException("Not supported. Edge is empty.");
+        }
+
+        @Override
+        public int getReverseEdgeKey() {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
 
@@ -980,16 +958,6 @@ public class GHUtility {
 
         @Override
         public EdgeIteratorState copyPropertiesFrom(EdgeIteratorState edge) {
-            throw new UnsupportedOperationException("Not supported. Edge is empty.");
-        }
-
-        @Override
-        public int getOrigEdgeFirst() {
-            throw new UnsupportedOperationException("Not supported. Edge is empty.");
-        }
-
-        @Override
-        public int getOrigEdgeLast() {
             throw new UnsupportedOperationException("Not supported. Edge is empty.");
         }
 

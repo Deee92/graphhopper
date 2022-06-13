@@ -23,8 +23,9 @@ import com.graphhopper.routing.ev.DecimalEncodedValue;
 import com.graphhopper.routing.ev.TurnCost;
 import com.graphhopper.routing.querygraph.QueryGraph;
 import com.graphhopper.routing.querygraph.QueryRoutingCHGraph;
-import com.graphhopper.routing.util.CarFlagEncoder;
 import com.graphhopper.routing.util.EncodingManager;
+import com.graphhopper.routing.util.FlagEncoder;
+import com.graphhopper.routing.util.FlagEncoders;
 import com.graphhopper.routing.weighting.DefaultTurnCostProvider;
 import com.graphhopper.routing.weighting.FastestWeighting;
 import com.graphhopper.storage.*;
@@ -32,6 +33,7 @@ import com.graphhopper.storage.index.Snap;
 import com.graphhopper.util.DistancePlaneProjection;
 import com.graphhopper.util.EdgeIteratorState;
 import com.graphhopper.util.GHUtility;
+import com.graphhopper.util.PMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +44,7 @@ import static com.graphhopper.util.EdgeIterator.NO_EDGE;
 import static org.junit.jupiter.api.Assertions.*;
 
 class QueryRoutingCHGraphTest {
-    private CarFlagEncoder encoder;
+    private FlagEncoder encoder;
     private EncodingManager encodingManager;
     private FastestWeighting weighting;
     private BaseGraph graph;
@@ -50,7 +52,7 @@ class QueryRoutingCHGraphTest {
 
     @BeforeEach
     public void setup() {
-        encoder = new CarFlagEncoder(5, 5, 5, true);
+        encoder = FlagEncoders.createCar(new PMap().putObject("max_turn_costs", 5).putObject("speed_two_directions", true));
         encodingManager = EncodingManager.create(encoder);
         graph = new BaseGraph.Builder(encodingManager).create();
         weighting = new FastestWeighting(encoder, new DefaultTurnCostProvider(encoder, graph.getTurnCostStorage()));
@@ -109,7 +111,7 @@ class QueryRoutingCHGraphTest {
 
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 1);
+        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 2);
 
         QueryGraph queryGraph = QueryGraph.create(graph, Collections.emptyList());
         QueryRoutingCHGraph queryCHGraph = new QueryRoutingCHGraph(routingCHGraph, queryGraph);
@@ -219,7 +221,7 @@ class QueryRoutingCHGraphTest {
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
 
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 1);
+        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 2);
 
         Snap snap = new Snap(50.00, 10.05);
         snap.setClosestEdge(edge);
@@ -295,7 +297,7 @@ class QueryRoutingCHGraphTest {
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
 
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 1);
+        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 2);
 
         Snap snap = new Snap(50.00, 10.05);
         snap.setClosestEdge(edge);
@@ -378,7 +380,7 @@ class QueryRoutingCHGraphTest {
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
 
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScDirMask(), 20, 0, 1, 0, 1);
+        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScDirMask(), 20, 0, 1, 0, 2);
 
         // without query graph
         RoutingCHEdgeIterator iter = routingCHGraph.createOutEdgeExplorer().setBaseNode(0);
@@ -558,7 +560,7 @@ class QueryRoutingCHGraphTest {
         CHStorageBuilder chBuilder = new CHStorageBuilder(chStore);
 
         chBuilder.setIdentityLevels();
-        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 1);
+        chBuilder.addShortcutEdgeBased(0, 2, PrepareEncoder.getScFwdDir(), 20, 0, 1, 0, 2);
 
         // without virtual nodes
         assertEquals(5, routingCHGraph.getTurnWeight(0, 1, 1));

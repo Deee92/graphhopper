@@ -78,6 +78,11 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState {
     }
 
     @Override
+    public int getReverseEdgeKey() {
+        return baseNode == adjNode ? edgeKey : GHUtility.reverseEdgeKey(edgeKey);
+    }
+
+    @Override
     public int getBaseNode() {
         return baseNode;
     }
@@ -321,16 +326,6 @@ public class VirtualEdgeIteratorState implements EdgeIteratorState {
     @Override
     public String toString() {
         return baseNode + "->" + adjNode;
-    }
-
-    @Override
-    public int getOrigEdgeFirst() {
-        return getEdge();
-    }
-
-    @Override
-    public int getOrigEdgeLast() {
-        return getEdge();
     }
 
     @Override
