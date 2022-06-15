@@ -18,10 +18,6 @@ import static org.mockito.ArgumentMatchers.*;
 public class TestInstructionRickGen {
     static XStream xStream = new XStream();
 
-    private <T> T deserializeObjectFromString(String serializedObjectString) {
-        return (T) xStream.fromXML(serializedObjectString);
-    }
-
     private <T> T deserializeObjectFromFile(String serializedObjectFilePath) throws Exception {
         ClassLoader classLoader = getClass().getClassLoader();
         File serializedObjectFile = new File(classLoader.getResource(serializedObjectFilePath).getFile());
