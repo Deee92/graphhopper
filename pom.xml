@@ -68,6 +68,7 @@
         <module>client-hc</module>
         <module>navigation</module>
         <module>example</module>
+        <module>rick-tests</module>
     </modules>
     <dependencyManagement>
         <dependencies>
