@@ -36,8 +36,8 @@ public class TestStorablePropertiesRickGen {
     }
 
     @Test
-    @DisplayName("loadExisting with OO - loadExisting(), getCapacity(), getBytes(long,byte[],int)")
-    public void test_loadExisting_OO_cb1af87a0d974113b153c916318e45b4() throws Exception {
+    @DisplayName("loadExisting with output oracle, mocking loadExisting(), getCapacity(), getBytes(long,byte[],int)")
+    public void test_loadExisting_OO() throws Exception {
         // Arrange
         StorableProperties receivingObject = deserializeObjectFromFile("com.graphhopper.storage.StorableProperties.loadExisting1-receiving.xml");
         DataAccess mockDataAccess = insertPrivateMockField_da_InStorableProperties(receivingObject);
@@ -50,8 +50,8 @@ public class TestStorablePropertiesRickGen {
     }
 
     @Test
-    @DisplayName("loadExisting with PO - loadExisting(), getCapacity(), getBytes(long,byte[],int)")
-    public void test_loadExisting_PO_cb1af87a0d974113b153c916318e45b4() throws Exception {
+    @DisplayName("loadExisting with parameter oracle, mocking loadExisting(), getCapacity(), getBytes(long,byte[],int)")
+    public void test_loadExisting_PO() throws Exception {
         // Arrange
         StorableProperties receivingObject = deserializeObjectFromFile("com.graphhopper.storage.StorableProperties.loadExisting1-receiving.xml");
         DataAccess mockDataAccess = insertPrivateMockField_da_InStorableProperties(receivingObject);
@@ -66,8 +66,8 @@ public class TestStorablePropertiesRickGen {
     }
 
     @Test
-    @DisplayName("loadExisting with CO - loadExisting(), getCapacity(), getBytes(long,byte[],int)")
-    public void test_loadExisting_CO_cb1af87a0d974113b153c916318e45b4() throws Exception {
+    @DisplayName("loadExisting with call oracle, mocking loadExisting(), getCapacity(), getBytes(long,byte[],int)")
+    public void test_loadExisting_CO() throws Exception {
         // Arrange
         StorableProperties receivingObject = deserializeObjectFromFile("com.graphhopper.storage.StorableProperties.loadExisting1-receiving.xml");
         DataAccess mockDataAccess = insertPrivateMockField_da_InStorableProperties(receivingObject);
