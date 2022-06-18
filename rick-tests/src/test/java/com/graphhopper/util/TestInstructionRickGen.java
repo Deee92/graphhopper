@@ -27,8 +27,8 @@ public class TestInstructionRickGen {
     }
 
     @Test
-    @DisplayName("getTurnDescription with OO - tr(java.lang.String,java.lang.Object[])")
-    public void test_getTurnDescription_OO_10977d1be2ed426b8b565821a2b274da() throws Exception {
+    @DisplayName("getTurnDescription with output oracle, mocking tr(java.lang.String,java.lang.Object[])")
+    public void test_getTurnDescription_OO() throws Exception {
         // Arrange
         Instruction receivingObject = deserializeObjectFromFile("com.graphhopper.util.Instruction.getTurnDescription1-receiving.xml");
         Translation mockTranslation = Mockito.mock(Translation.class);
@@ -40,8 +40,8 @@ public class TestInstructionRickGen {
     }
 
     @Test
-    @DisplayName("getTurnDescription with PO - tr(java.lang.String,java.lang.Object[])")
-    public void test_getTurnDescription_PO_10977d1be2ed426b8b565821a2b274da() throws Exception {
+    @DisplayName("getTurnDescription with parameter oracle, mocking tr(java.lang.String,java.lang.Object[])")
+    public void test_getTurnDescription_PO() throws Exception {
         // Arrange
         Instruction receivingObject = deserializeObjectFromFile("com.graphhopper.util.Instruction.getTurnDescription1-receiving.xml");
         Translation mockTranslation = Mockito.mock(Translation.class);
@@ -53,8 +53,8 @@ public class TestInstructionRickGen {
     }
 
     @Test
-    @DisplayName("getTurnDescription with CO - tr(java.lang.String,java.lang.Object[])")
-    public void test_getTurnDescription_CO_10977d1be2ed426b8b565821a2b274da() throws Exception {
+    @DisplayName("getTurnDescription with call oracle, mocking tr(java.lang.String,java.lang.Object[])")
+    public void test_getTurnDescription_CO() throws Exception {
         // Arrange
         Instruction receivingObject = deserializeObjectFromFile("com.graphhopper.util.Instruction.getTurnDescription1-receiving.xml");
         Translation mockTranslation = Mockito.mock(Translation.class);
